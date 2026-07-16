@@ -6,10 +6,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
 authors = [
-  { 
-    name = "Matt Anderson", 
-    email = "matt@manderscience.com"
-  }
+  { name = "Matt Anderson", email = "matt@manderscience.com" },
 ]
 keywords = ["llm-wiki", "linter", "knowledge-base", "markdown", "wikilinks"]
 dependencies = [
