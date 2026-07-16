@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from proofwright import load_config, run_checks
 from proofwright.parse import load_wiki, resolve_md_target
 
@@ -29,30 +27,12 @@ def test_markdown_links_build_graph():
     wiki = load_wiki(md_config())
     book_a = wiki.page("library/book-a")
     assert [l.target_slug for l in book_a.links] == ["authors/auth-a"]
-    # provenance came from frontmatter sources, resolved to a raw/ path
-    assert "../../raw/manual/books.md" in book_a.sources
-    assert book_a.sources["../../raw/manual/books.md"].raw_path == "raw/manual/books.md"
 
 
-def test_markdown_wiki_findings():
+def test_markdown_broken_link_detected():
     _, report = run_checks(md_config())
     errors = {f.check_id for f in report.findings if f.severity == "error"}
-    assert errors == {"broken-link", "provenance-present"}
-    # clean pages produce no error
-    assert not [
-        f for f in report.findings if f.severity == "error" and "book-a" in (f.path or "")
-    ]
-
-
-def test_frontmatter_sources_provenance_missing(tmp_path, monkeypatch):
-    # a book whose source path points at a nonexistent raw file is flagged
-    import shutil
-
-    dest = tmp_path / "w"
-    shutil.copytree(MD, dest)
-    (dest / "wiki" / "library" / "book-a.md").write_text(
-        "---\ntype: book\ntitle: Book A\nsources: [../../raw/manual/nope.md]\n---\n## Summary\nx.\n",
-        encoding="utf-8",
-    )
-    _, report = run_checks(load_config(dest / "wiki.toml"))
-    assert "missing-provenance" in {f.check_id for f in report.findings}
+    assert errors == {"broken-link"}
+    bl = next(f for f in report.findings if f.check_id == "broken-link")
+    assert bl.path == "wiki/library/book-b.md"
+    assert bl.data["target"] == "library/ghost"

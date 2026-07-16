@@ -32,8 +32,6 @@ class FrontmatterConfig:
     tags_field: str = "tags"
     # Frontmatter key holding the grade a page relies on (for surfaced-grade check).
     grade_field: str = "grade"
-    # Frontmatter key naming a page's type (used to scope per-type rules).
-    type_field: str = "type"
 
 
 @dataclass
@@ -53,16 +51,8 @@ class LinksConfig:
 
 @dataclass
 class CitationConfig:
-    # How provenance is expressed:
-    #   "references"         = inline [n] markers resolved via a References section
-    #   "frontmatter-sources" = a frontmatter list field of source paths (no inline markers)
-    #   "off"                = provenance not checked
-    mode: str = "references"
-    # Frontmatter list field naming a page's sources (frontmatter-sources mode).
-    sources_field: str = "sources"
-    # Page types (by frontmatter type) that MUST carry at least one source. Empty = none.
-    require_sources_for: list[str] = field(default_factory=list)
-    # How ``[n]`` markers map to sources in references mode.
+    # How ``[n]`` markers map to sources: "section" = a References section of
+    # ``[n]. <text mentioning a raw/ path or url>`` lines.
     references: str = "section"
     # Heading text (case-insensitive) that starts the references section.
     references_heading: str = "References"
@@ -115,6 +105,9 @@ class WikiConfig:
     graph: GraphConfig = field(default_factory=GraphConfig)
     checks: ChecksConfig = field(default_factory=ChecksConfig)
     plugins: PluginsConfig = field(default_factory=PluginsConfig)
+    # The full parsed TOML, so plugins can read their own config tables
+    # (e.g. cfg.extra["frontmatter_sources"]). Core never reads this.
+    extra: dict = field(default_factory=dict)
 
     # --- resolved absolute paths -------------------------------------------------
     @property
@@ -171,4 +164,5 @@ def load_config(path: str | Path) -> WikiConfig:
         graph=_build(GraphConfig, data.get("graph")),
         checks=_build(ChecksConfig, data.get("checks")),
         plugins=_build(PluginsConfig, data.get("plugins")),
+        extra=data,
     )

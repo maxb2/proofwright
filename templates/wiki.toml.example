@@ -16,21 +16,14 @@ types = { updated = "date" }      # key -> one of str|int|float|bool|list|date
 tags = []                         # allowed tag vocabulary ([] = any)
 tags_field = "tags"
 grade_field = "grade"             # frontmatter key naming the relied-on source grade
-type_field = "type"               # frontmatter key naming a page's type
 
 [grades]
 vocab = []              # fixed reliability grades ([] = grading not enforced)
 
 [citation]
-# mode selects how provenance is expressed:
-#   references          = inline [n] markers + a References section
-#   frontmatter-sources = a frontmatter list of source paths (no inline markers)
-#   off                 = provenance not checked
-mode = "references"
-sources_field = "sources"          # frontmatter list field (frontmatter-sources mode)
-require_sources_for = []           # page types that MUST carry a source, e.g. ["book"]
+references = "section"           # how [n] maps to a source
 references_heading = "References"
-claim_policy = "paragraph"         # "paragraph" flags uncited prose; "off" disables coverage
+claim_policy = "paragraph"       # "paragraph" flags uncited prose; "off" disables coverage
 
 [freshness]
 recency_field = "updated"
@@ -46,5 +39,16 @@ fail_on = ["error"]      # severities that cause a nonzero exit code
 disabled = []            # check ids to skip
 
 [plugins]
-modules = []             # dotted module paths exposing register(registry)
+modules = []             # dotted module paths exposing register(registry); the wiki root
+                         # is on sys.path, so a wiki-local plugin file works by name
 load_entry_points = true
+
+# Plugins read their own config from arbitrary tables, exposed as cfg.extra. Example:
+# a wiki that expresses provenance via a `sources:` frontmatter list (rather than the
+# core [n]+References pattern) ships a plugin and configures it here:
+#
+#   [plugins]
+#   modules = ["pw_provenance_plugin"]
+#   [frontmatter_sources]
+#   field = "sources"
+#   require_for = ["book"]

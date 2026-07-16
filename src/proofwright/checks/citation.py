@@ -22,8 +22,6 @@ _STRUCTURAL_PREFIXES = ("#", ">", "|", "```", "- ", "* ", "+ ", "1.")
 
 @registry.register("citation-resolution", severity="error")
 def citation_resolution(wiki: Wiki, cfg: WikiConfig):
-    if cfg.citation.mode != "references":  # inline [n] markers only exist in this mode
-        return
     for page in wiki.pages:
         for cite in page.citations:
             if cite.source is None:
@@ -37,27 +35,9 @@ def citation_resolution(wiki: Wiki, cfg: WikiConfig):
                 )
 
 
-@registry.register("provenance-present", severity="error")
-def provenance_present(wiki: Wiki, cfg: WikiConfig):
-    """Pages of a required type must carry at least one source (frontmatter-sources mode)."""
-    required = set(cfg.citation.require_sources_for)
-    if not required:
-        return
-    type_field = cfg.frontmatter.type_field
-    for page in wiki.pages:
-        if page.frontmatter.get(type_field) in required and not page.sources:
-            yield Finding(
-                check_id="provenance-present",
-                severity="error",
-                message=f"page of type '{page.frontmatter.get(type_field)}' has no sources",
-                path=rel(wiki, page.path),
-                line=1,
-            )
-
-
 @registry.register("citation-coverage", severity="warn")
 def citation_coverage(wiki: Wiki, cfg: WikiConfig):
-    if cfg.citation.mode != "references" or cfg.citation.claim_policy == "off":
+    if cfg.citation.claim_policy == "off":
         return
     for page in wiki.pages:
         cited_lines = {c.line for c in page.citations}

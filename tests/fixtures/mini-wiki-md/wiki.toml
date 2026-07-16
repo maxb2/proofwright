@@ -11,9 +11,10 @@ style = "markdown"
 required = ["type"]
 
 [citation]
-mode = "frontmatter-sources"
-sources_field = "sources"
-require_sources_for = ["book"]
+claim_policy = "off"   # this wiki uses no inline [n] citations
 
 [checks]
 fail_on = ["error"]
+
+# Wiki-specific provenance (sources: frontmatter) is enforced by a plugin, see
+# tests/fixtures/pw_provenance_plugin.py loaded in test_plugins.py.

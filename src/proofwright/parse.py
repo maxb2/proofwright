@@ -148,51 +148,17 @@ def parse_references(
     return sources
 
 
-def sources_from_frontmatter(fm: dict, page_dir: Path, cfg: WikiConfig) -> dict[str, Source]:
-    """Build the source table from a frontmatter list field of paths.
-
-    Each entry is a path relative to the page; ``raw_path`` is its path relative to the
-    wiki root when it stays inside the repo (so provenance checks can confirm it exists),
-    else None.
-    """
-    raw = fm.get(cfg.citation.sources_field)
-    if raw is None:
-        return {}
-    entries = raw if isinstance(raw, list) else [raw]
-    root = cfg.root.resolve()
-    sources: dict[str, Source] = {}
-    for entry in entries:
-        if not isinstance(entry, str) or not entry.strip():
-            continue
-        entry = entry.strip()
-        abs_path = (page_dir / entry).resolve()
-        try:
-            raw_path = abs_path.relative_to(root).as_posix()
-        except ValueError:
-            raw_path = None
-        sources[entry] = Source(id=entry, text=entry, raw_path=raw_path)
-    return sources
-
-
 def parse_page(path: Path, wiki_dir: Path, cfg: WikiConfig) -> Page:
     text = path.read_text(encoding="utf-8")
     fm, body, body_start_line, fm_error = split_frontmatter(text)
     body_lines = body.splitlines()
 
-    if cfg.citation.mode == "references":
-        ref_start = _find_references_start(body_lines, cfg.citation.references_heading)
-        sources = (
-            parse_references(body_lines, ref_start, body_start_line)
-            if ref_start is not None
-            else {}
-        )
-    else:
-        ref_start = None
-        sources = (
-            sources_from_frontmatter(fm, path.parent, cfg)
-            if cfg.citation.mode == "frontmatter-sources"
-            else {}
-        )
+    ref_start = _find_references_start(body_lines, cfg.citation.references_heading)
+    sources = (
+        parse_references(body_lines, ref_start, body_start_line)
+        if ref_start is not None
+        else {}
+    )
     # Body offsets that belong to the references block (excluded from citation scanning).
     ref_line_set = set(range(ref_start, len(body_lines))) if ref_start is not None else set()
     # Same block expressed as 1-based file lines (for claim-coverage exclusion).
@@ -205,9 +171,8 @@ def parse_page(path: Path, wiki_dir: Path, cfg: WikiConfig) -> Page:
         links.extend(extract_links(line, file_line, path.parent, wiki_dir, cfg))
         if offset in ref_line_set:
             continue
-        if cfg.citation.mode == "references":
-            for m in CITATION_RE.finditer(line):
-                citations.append(Citation(marker=m.group(1), line=file_line))
+        for m in CITATION_RE.finditer(line):
+            citations.append(Citation(marker=m.group(1), line=file_line))
 
     # Resolve citations against this page's own reference table.
     for cite in citations:
