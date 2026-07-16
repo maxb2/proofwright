@@ -6,6 +6,7 @@ raw = "raw/"            # immutable sources
 wiki = "wiki/"          # LLM-owned pages
 schema = "CLAUDE.md"    # conventions file; declared [[slugs]] must have page files
 index = "wiki/index.md" # generated table of contents
+# index_template = "index-hierarchical.md"  # Jinja2 template for the index; unset = flat list
 
 [links]
 style = "wikilink"      # wikilink = [[slug]] · markdown = [label](path.md) · both
