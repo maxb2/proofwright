@@ -19,7 +19,9 @@ def test_build_tree_groups_by_folder_and_forces_overview(good_config):
     # Root pages collected under Overview, which sorts before folder sections.
     assert headings == ["Overview", "guides"]
     overview = tree["subgroups"][0]
-    assert overview["entries"] and all("[[home]]" in e or "[[about]]" in e for e in overview["entries"])
+    assert overview["entries"] and all(
+        "[[home]]" in e or "[[about]]" in e for e in overview["entries"]
+    )
     # Recursive nesting: guides/adv/tuning sits under guides -> adv.
     guides = tree["subgroups"][1]
     assert [s["heading"] for s in guides["subgroups"]] == ["adv"]
