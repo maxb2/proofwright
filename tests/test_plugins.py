@@ -9,7 +9,7 @@ MD = FIXTURES / "mini-wiki-md"
 PROVENANCE_PLUGIN = FIXTURES / "pw_provenance_plugin.py"
 
 PLUGIN_SRC = textwrap.dedent(
-    '''
+    """
     from proofwright.report import Finding
 
     def a_custom_check(wiki, cfg):
@@ -24,7 +24,7 @@ PLUGIN_SRC = textwrap.dedent(
 
     def register(registry):
         registry.add("custom-note", "info", a_custom_check)
-    '''
+    """
 )
 
 
@@ -74,4 +74,3 @@ def test_frontmatter_sources_plugin(tmp_path):
     # book-b has type book but no sources -> flagged; book-a has valid sources -> not
     assert ("sources-missing", "wiki/library/book-b.md") in ids_by_page
     assert not any(cid == "sources-missing" and "book-a" in p for cid, p in ids_by_page)
-

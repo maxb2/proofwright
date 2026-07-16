@@ -6,7 +6,7 @@ def test_page_parsing(good_config):
     page = wiki.page("page-a")
     assert page is not None
     assert page.frontmatter["title"] == "Page A"
-    assert [l.target_slug for l in page.links] == ["page-b"]
+    assert [link.target_slug for link in page.links] == ["page-b"]
     assert [c.marker for c in page.citations] == ["1"]
     # citation resolves to a source with provenance + grade
     source = page.citations[0].source

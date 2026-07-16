@@ -16,9 +16,7 @@ from .runner import build_registry, run_checks
 
 def _add_common(p: argparse.ArgumentParser) -> None:
     p.add_argument("--config", default="wiki.toml", help="path to wiki.toml (default: ./wiki.toml)")
-    p.add_argument(
-        "--format", choices=["text", "json"], default="text", help="report format"
-    )
+    p.add_argument("--format", choices=["text", "json"], default="text", help="report format")
 
 
 def build_parser() -> argparse.ArgumentParser:
