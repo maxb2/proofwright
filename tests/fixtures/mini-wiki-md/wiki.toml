@@ -1,0 +1,19 @@
+[paths]
+raw = "raw/"
+wiki = "wiki/"
+schema = "CLAUDE.md"
+index = "wiki/index.md"
+
+[links]
+style = "markdown"
+
+[frontmatter]
+required = ["type"]
+
+[citation]
+mode = "frontmatter-sources"
+sources_field = "sources"
+require_sources_for = ["book"]
+
+[checks]
+fail_on = ["error"]

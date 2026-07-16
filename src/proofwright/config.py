@@ -32,6 +32,8 @@ class FrontmatterConfig:
     tags_field: str = "tags"
     # Frontmatter key holding the grade a page relies on (for surfaced-grade check).
     grade_field: str = "grade"
+    # Frontmatter key naming a page's type (used to scope per-type rules).
+    type_field: str = "type"
 
 
 @dataclass
@@ -41,9 +43,26 @@ class GradesConfig:
 
 
 @dataclass
+class LinksConfig:
+    # How cross-references are written:
+    #   "wikilink" = [[slug]] (Obsidian style)
+    #   "markdown" = [label](relative/path.md)
+    #   "both"     = accept either
+    style: str = "wikilink"
+
+
+@dataclass
 class CitationConfig:
-    # How ``[n]`` markers map to sources: "section" = a References section of
-    # ``[n]. <text mentioning a raw/ path or url>`` lines.
+    # How provenance is expressed:
+    #   "references"         = inline [n] markers resolved via a References section
+    #   "frontmatter-sources" = a frontmatter list field of source paths (no inline markers)
+    #   "off"                = provenance not checked
+    mode: str = "references"
+    # Frontmatter list field naming a page's sources (frontmatter-sources mode).
+    sources_field: str = "sources"
+    # Page types (by frontmatter type) that MUST carry at least one source. Empty = none.
+    require_sources_for: list[str] = field(default_factory=list)
+    # How ``[n]`` markers map to sources in references mode.
     references: str = "section"
     # Heading text (case-insensitive) that starts the references section.
     references_heading: str = "References"
@@ -90,6 +109,7 @@ class WikiConfig:
     paths: PathsConfig = field(default_factory=PathsConfig)
     frontmatter: FrontmatterConfig = field(default_factory=FrontmatterConfig)
     grades: GradesConfig = field(default_factory=GradesConfig)
+    links: LinksConfig = field(default_factory=LinksConfig)
     citation: CitationConfig = field(default_factory=CitationConfig)
     freshness: FreshnessConfig = field(default_factory=FreshnessConfig)
     graph: GraphConfig = field(default_factory=GraphConfig)
@@ -145,6 +165,7 @@ def load_config(path: str | Path) -> WikiConfig:
         paths=_build(PathsConfig, data.get("paths")),
         frontmatter=_build(FrontmatterConfig, data.get("frontmatter")),
         grades=_build(GradesConfig, data.get("grades")),
+        links=_build(LinksConfig, data.get("links")),
         citation=_build(CitationConfig, data.get("citation")),
         freshness=_build(FreshnessConfig, data.get("freshness")),
         graph=_build(GraphConfig, data.get("graph")),

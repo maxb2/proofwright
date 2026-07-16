@@ -7,20 +7,30 @@ wiki = "wiki/"          # LLM-owned pages
 schema = "CLAUDE.md"    # conventions file; declared [[slugs]] must have page files
 index = "wiki/index.md" # generated table of contents
 
+[links]
+style = "wikilink"      # wikilink = [[slug]] · markdown = [label](path.md) · both
+
 [frontmatter]
 required = ["title"]              # keys every page must have
 types = { updated = "date" }      # key -> one of str|int|float|bool|list|date
 tags = []                         # allowed tag vocabulary ([] = any)
 tags_field = "tags"
 grade_field = "grade"             # frontmatter key naming the relied-on source grade
+type_field = "type"               # frontmatter key naming a page's type
 
 [grades]
 vocab = []              # fixed reliability grades ([] = grading not enforced)
 
 [citation]
-references = "section"           # how [n] maps to a source
+# mode selects how provenance is expressed:
+#   references          = inline [n] markers + a References section
+#   frontmatter-sources = a frontmatter list of source paths (no inline markers)
+#   off                 = provenance not checked
+mode = "references"
+sources_field = "sources"          # frontmatter list field (frontmatter-sources mode)
+require_sources_for = []           # page types that MUST carry a source, e.g. ["book"]
 references_heading = "References"
-claim_policy = "paragraph"       # "paragraph" flags uncited prose; "off" disables coverage
+claim_policy = "paragraph"         # "paragraph" flags uncited prose; "off" disables coverage
 
 [freshness]
 recency_field = "updated"

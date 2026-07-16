@@ -19,11 +19,26 @@ _TYPE_CHECKS = {
 }
 
 
+@registry.register("frontmatter-parse", severity="error")
+def parse_errors(wiki: Wiki, cfg: WikiConfig):
+    for page in wiki.pages:
+        if page.fm_error:
+            yield Finding(
+                check_id="frontmatter-parse",
+                severity="error",
+                message=f"invalid YAML frontmatter: {page.fm_error}",
+                path=rel(wiki, page.path),
+                line=1,
+            )
+
+
 @registry.register("frontmatter-required", severity="error")
 def required_keys(wiki: Wiki, cfg: WikiConfig):
     index_slug = cfg.index_slug()
     for page in wiki.pages:
         if page.slug == index_slug:  # index is a generated artifact, not a curated page
+            continue
+        if page.fm_error:  # already reported by frontmatter-parse; keys are unknown
             continue
         for key in cfg.frontmatter.required:
             if key not in page.frontmatter:

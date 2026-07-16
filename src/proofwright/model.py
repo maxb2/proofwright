@@ -52,6 +52,7 @@ class Page:
     citations: list[Citation] = field(default_factory=list)
     sources: dict[str, Source] = field(default_factory=dict)  # marker -> Source
     ref_lines: set[int] = field(default_factory=set)  # file lines of the references block
+    fm_error: str | None = None  # YAML parse error, if the frontmatter block is invalid
 
     @property
     def body_chars(self) -> int:

@@ -18,10 +18,10 @@ def broken_links(wiki: Wiki, cfg: WikiConfig):
                 yield Finding(
                     check_id="broken-link",
                     severity="error",
-                    message=f"wikilink to missing page [[{link.target_slug}]]",
+                    message=f"link to missing page '{link.target_slug}'",
                     path=_rel(wiki, page.path),
                     line=link.line,
-                    data={"target": link.target_slug},
+                    data={"target": link.target_slug, "raw": link.raw},
                 )
 
 
@@ -82,17 +82,16 @@ def missing_provenance(wiki: Wiki, cfg: WikiConfig):
                 yield Finding(
                     check_id="missing-provenance",
                     severity="error",
-                    message=f"reference [{marker}] names no source file in raw/",
+                    message=f"source [{marker}] resolves outside the wiki repo",
                     path=_rel(wiki, page.path),
                     line=1,
                     data={"marker": marker},
                 )
-            elif source.raw_path not in wiki.raw_files:
+            elif not (wiki.root / source.raw_path).exists():
                 yield Finding(
                     check_id="missing-provenance",
                     severity="error",
-                    message=f"reference [{marker}] points to missing raw file "
-                    f"'{source.raw_path}'",
+                    message=f"source '{source.raw_path}' does not exist",
                     path=_rel(wiki, page.path),
                     line=1,
                     data={"marker": marker, "raw_path": source.raw_path},

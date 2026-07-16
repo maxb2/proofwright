@@ -6,8 +6,10 @@ compares the committed index against this; ``proofwright index --write`` rewrite
 
 from __future__ import annotations
 
+import os
+
 from .config import WikiConfig
-from .model import Wiki
+from .model import Page, Wiki
 from .parse import slug_for
 
 
@@ -16,17 +18,26 @@ def _title(page) -> str:
     return value if isinstance(value, str) and value.strip() else page.slug
 
 
+def _entry(page: Page, cfg: WikiConfig) -> str:
+    """One index line, written in the wiki's configured link style."""
+    title = _title(page)
+    if cfg.links.style == "wikilink":
+        return f"- [[{page.slug}]] — {title}"
+    rel = os.path.relpath(page.path, cfg.index_path.parent).replace(os.sep, "/")
+    return f"- [{title}]({rel})"
+
+
 def render_index(wiki: Wiki, cfg: WikiConfig) -> str:
     """Render the canonical index markdown for ``wiki``.
 
     Excludes the index page itself so the file never lists itself.
     """
     index_slug = slug_for(cfg.index_path, cfg.wiki_dir) if _under_wiki(cfg) else None
-    entries = []
-    for page in sorted(wiki.pages, key=lambda p: p.slug):
-        if page.slug == index_slug:
-            continue
-        entries.append(f"- [[{page.slug}]] — {_title(page)}")
+    entries = [
+        _entry(page, cfg)
+        for page in sorted(wiki.pages, key=lambda p: p.slug)
+        if page.slug != index_slug
+    ]
     body = "\n".join(entries)
     return f"# Index\n\n{body}\n" if entries else "# Index\n"
 
