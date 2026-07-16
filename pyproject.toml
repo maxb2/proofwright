@@ -11,6 +11,7 @@ authors = [
 keywords = ["llm-wiki", "linter", "knowledge-base", "markdown", "wikilinks"]
 dependencies = [
     "PyYAML>=6.0",
+    "Jinja2>=3.0",
 ]
 
 [project.scripts]

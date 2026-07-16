@@ -19,6 +19,9 @@ class PathsConfig:
     wiki: str = "wiki/"
     schema: str = "CLAUDE.md"
     index: str = "wiki/index.md"
+    # Optional Jinja2 template for the generated index, relative to the wiki root.
+    # None = built-in flat list. Templates receive ``links`` and ``link_tree``.
+    index_template: str | None = None
 
 
 @dataclass
@@ -125,6 +128,13 @@ class WikiConfig:
     @property
     def index_path(self) -> Path:
         return self.root / self.paths.index
+
+    @property
+    def index_template_path(self) -> Path | None:
+        """Resolved path to a custom index template, or None for the built-in default."""
+        if not self.paths.index_template:
+            return None
+        return self.root / self.paths.index_template
 
     def index_slug(self) -> str | None:
         """Slug of the generated index page, or None if the index lives outside wiki/."""
