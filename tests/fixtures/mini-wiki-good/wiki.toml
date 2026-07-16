@@ -1,0 +1,23 @@
+[paths]
+raw = "raw/"
+wiki = "wiki/"
+schema = "CLAUDE.md"
+index = "wiki/index.md"
+
+[frontmatter]
+required = ["title", "updated"]
+types = { updated = "date" }
+tags = ["concept", "entity"]
+
+[grades]
+vocab = ["A", "B", "C", "D"]
+
+[citation]
+claim_policy = "paragraph"
+
+[freshness]
+recency_field = "updated"
+stale_after_days = 180
+
+[checks]
+fail_on = ["error"]

@@ -1,0 +1,40 @@
+# Proofwright per-wiki config. Copy to your wiki root as `wiki.toml` and edit.
+# All values shown are defaults; delete anything you don't override.
+
+[paths]
+raw = "raw/"            # immutable sources
+wiki = "wiki/"          # LLM-owned pages
+schema = "CLAUDE.md"    # conventions file; declared [[slugs]] must have page files
+index = "wiki/index.md" # generated table of contents
+
+[frontmatter]
+required = ["title"]              # keys every page must have
+types = { updated = "date" }      # key -> one of str|int|float|bool|list|date
+tags = []                         # allowed tag vocabulary ([] = any)
+tags_field = "tags"
+grade_field = "grade"             # frontmatter key naming the relied-on source grade
+
+[grades]
+vocab = []              # fixed reliability grades ([] = grading not enforced)
+
+[citation]
+references = "section"           # how [n] maps to a source
+references_heading = "References"
+claim_policy = "paragraph"       # "paragraph" flags uncited prose; "off" disables coverage
+
+[freshness]
+recency_field = "updated"
+stale_after_days = 180
+
+[graph]
+roots = ["index"]        # slugs allowed to have no inbound links
+hub_min_inbound = 5
+stub_max_chars = 200
+
+[checks]
+fail_on = ["error"]      # severities that cause a nonzero exit code
+disabled = []            # check ids to skip
+
+[plugins]
+modules = []             # dotted module paths exposing register(registry)
+load_entry_points = true

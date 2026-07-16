@@ -1,0 +1,32 @@
+[project]
+name = "proofwright"
+version = "0.1.0"
+description = "Deterministic, zero-LLM structural checks for an LLM Wiki (Karpathy raw/→wiki/ pattern)."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Matt" }]
+keywords = ["llm-wiki", "linter", "knowledge-base", "markdown", "wikilinks"]
+dependencies = [
+    "PyYAML>=6.0",
+]
+
+[project.scripts]
+proofwright = "proofwright.cli:main"
+pw = "proofwright.cli:main"
+
+[project.entry-points."proofwright.checks"]
+# Third-party packages register additional checks under this group.
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.10,<0.11"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "proofwright"
+module-root = "src"
