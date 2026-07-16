@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from ..config import WikiConfig
-from ..graph import build_graph
 from ..index import render_index
 from ..model import Wiki
 from ..report import Finding

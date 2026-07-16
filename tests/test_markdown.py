@@ -26,7 +26,7 @@ def test_resolve_md_target():
 def test_markdown_links_build_graph():
     wiki = load_wiki(md_config())
     book_a = wiki.page("library/book-a")
-    assert [l.target_slug for l in book_a.links] == ["authors/auth-a"]
+    assert [link.target_slug for link in book_a.links] == ["authors/auth-a"]
 
 
 def test_markdown_broken_link_detected():

@@ -155,9 +155,7 @@ def parse_page(path: Path, wiki_dir: Path, cfg: WikiConfig) -> Page:
 
     ref_start = _find_references_start(body_lines, cfg.citation.references_heading)
     sources = (
-        parse_references(body_lines, ref_start, body_start_line)
-        if ref_start is not None
-        else {}
+        parse_references(body_lines, ref_start, body_start_line) if ref_start is not None else {}
     )
     # Body offsets that belong to the references block (excluded from citation scanning).
     ref_line_set = set(range(ref_start, len(body_lines))) if ref_start is not None else set()
