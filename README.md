@@ -30,7 +30,20 @@ uv run proofwright check --format json                 # machine-readable findin
 uv run proofwright index --check                        # is the committed index stale?
 uv run proofwright index --write                        # regenerate the index
 uv run proofwright graph --report                       # graph-health report
+uv run proofwright search "your query"                  # rank pages (BM25 + graph, RRF)
+uv run proofwright search "your query" --format json    # ranked results with provenance
 ```
+
+## Retrieval
+
+`search` ranks pages with two deterministic streams — **BM25** (exact terms) and **graph
+expansion** (structural links, seeded by the top BM25 hits) — fused with reciprocal rank
+fusion. Each result reports which stream surfaced it. Tune it under `[retrieval]` in
+`wiki.toml`.
+
+The LLM rerank of the top slice is a *bounded, injectable* step (a `Reranker` protocol);
+the package default is a no-op, so `search` stays zero-LLM. A vector stream can fuse in
+later without changing the fusion.
 
 `proofwright` is a *library, not a framework*: all per-wiki variance (paths, vocabularies,
 thresholds) lives in `wiki.toml`; custom rules register via the plugin hook. No

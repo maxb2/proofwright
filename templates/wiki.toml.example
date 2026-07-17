@@ -35,6 +35,19 @@ roots = ["index"]        # slugs allowed to have no inbound links
 hub_min_inbound = 5
 stub_max_chars = 200
 
+[retrieval]
+# `pw search "<query>"` fuses two deterministic streams with reciprocal rank fusion.
+bm25_k1 = 1.5            # BM25 term-frequency saturation
+bm25_b = 0.75           # BM25 document-length normalization
+rrf_k = 60              # reciprocal rank fusion damping constant
+graph_hops = 2          # how far graph expansion walks from the seed pages
+graph_decay = 0.5       # per-hop score decay for graph candidates
+seed_count = 10         # top BM25 hits used to seed graph expansion
+candidate_limit = 50    # per-stream cap before fusion
+top_n = 10              # results returned
+min_token_len = 2       # tokens shorter than this are dropped
+# LLM rerank is a bounded, injectable step (Reranker protocol); the default is a no-op.
+
 [checks]
 fail_on = ["error"]      # severities that cause a nonzero exit code
 disabled = []            # check ids to skip

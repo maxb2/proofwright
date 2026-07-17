@@ -81,6 +81,26 @@ class GraphConfig:
 
 
 @dataclass
+class RetrievalConfig:
+    # BM25-Okapi term-frequency saturation and length-normalization.
+    bm25_k1: float = 1.5
+    bm25_b: float = 0.75
+    # Reciprocal rank fusion damping constant.
+    rrf_k: int = 60
+    # Graph-expansion reach and per-hop score decay.
+    graph_hops: int = 2
+    graph_decay: float = 0.5
+    # Number of top BM25 hits used to seed graph expansion.
+    seed_count: int = 10
+    # Per-stream candidate cap before fusion.
+    candidate_limit: int = 50
+    # Final number of results returned.
+    top_n: int = 10
+    # Minimum token length kept during tokenization.
+    min_token_len: int = 2
+
+
+@dataclass
 class ChecksConfig:
     # Severities that cause a nonzero exit code.
     fail_on: list[str] = field(default_factory=lambda: ["error"])
@@ -106,6 +126,7 @@ class WikiConfig:
     citation: CitationConfig = field(default_factory=CitationConfig)
     freshness: FreshnessConfig = field(default_factory=FreshnessConfig)
     graph: GraphConfig = field(default_factory=GraphConfig)
+    retrieval: RetrievalConfig = field(default_factory=RetrievalConfig)
     checks: ChecksConfig = field(default_factory=ChecksConfig)
     plugins: PluginsConfig = field(default_factory=PluginsConfig)
     # The full parsed TOML, so plugins can read their own config tables
@@ -172,6 +193,7 @@ def load_config(path: str | Path) -> WikiConfig:
         citation=_build(CitationConfig, data.get("citation")),
         freshness=_build(FreshnessConfig, data.get("freshness")),
         graph=_build(GraphConfig, data.get("graph")),
+        retrieval=_build(RetrievalConfig, data.get("retrieval")),
         checks=_build(ChecksConfig, data.get("checks")),
         plugins=_build(PluginsConfig, data.get("plugins")),
         extra=data,
