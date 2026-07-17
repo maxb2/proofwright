@@ -57,9 +57,7 @@ def search(
     fused = rrf_fuse([bm25_slugs, graph_slugs], k=rc.rrf_k)
     results: list[RetrievalResult] = []
     for slug, score in fused:
-        streams = {
-            name: order.index(slug) for name, order in stream_ranks.items() if slug in order
-        }
+        streams = {name: order.index(slug) for name, order in stream_ranks.items() if slug in order}
         results.append(
             RetrievalResult(slug=slug, score=score, page=wiki.page(slug), streams=streams)
         )
