@@ -1,8 +1,9 @@
-"""Command-line interface: ``proofwright check | lint | index | graph``."""
+"""Command-line interface: ``proofwright check | lint | index | graph | search``."""
 
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
@@ -11,6 +12,7 @@ from .graph import build_graph
 from .index import render_index, write_index
 from .parse import load_wiki
 from .report import Report
+from .retrieval import search
 from .runner import build_registry, run_checks
 
 
@@ -35,6 +37,11 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_graph = sub.add_parser("graph", help="print a link-graph health report")
     _add_common(p_graph)
+
+    p_search = sub.add_parser("search", help="rank pages against a query (BM25 + graph, RRF)")
+    p_search.add_argument("query", help="free-text query")
+    _add_common(p_search)
+    p_search.add_argument("--top-n", type=int, default=None, help="override retrieval.top_n")
 
     return parser
 
@@ -82,6 +89,33 @@ def _cmd_graph(args) -> int:
     return 0
 
 
+def _cmd_search(args) -> int:
+    cfg = load_config(args.config)
+    if args.top_n is not None:
+        cfg.retrieval.top_n = args.top_n
+    wiki = load_wiki(cfg)
+    results = search(wiki, cfg, args.query)
+    if args.format == "json":
+        payload = [
+            {
+                "slug": r.slug,
+                "score": r.score,
+                "title": (r.page.frontmatter.get("title") if r.page else None),
+                "path": (r.page.path.relative_to(cfg.root).as_posix() if r.page else None),
+                "streams": r.streams,
+            }
+            for r in results
+        ]
+        print(json.dumps(payload, indent=2))
+    elif not results:
+        print("no matches.")
+    else:
+        for r in results:
+            streams = ",".join(sorted(r.streams)) or "-"
+            print(f"{r.score:.4f}  {r.slug}  [{streams}]")
+    return 0
+
+
 def _emit(report: Report, fmt: str, root: Path) -> None:
     if fmt == "json":
         print(report.to_json())
@@ -97,6 +131,8 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_index(args)
     if args.command == "graph":
         return _cmd_graph(args)
+    if args.command == "search":
+        return _cmd_search(args)
     return 2
 
 
