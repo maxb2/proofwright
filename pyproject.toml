@@ -14,6 +14,11 @@ dependencies = [
     "Jinja2>=3.0",
 ]
 
+[project.optional-dependencies]
+# Dense vector retrieval stream. Static embeddings (numpy-only, no torch) keep the
+# install light and results bit-deterministic. Enable via [retrieval.vector] in wiki.toml.
+vector = ["numpy>=1.26", "model2vec>=0.3"]
+
 [project.scripts]
 proofwright = "proofwright.cli:main"
 pw = "proofwright.cli:main"

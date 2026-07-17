@@ -48,6 +48,14 @@ top_n = 10              # results returned
 min_token_len = 2       # tokens shorter than this are dropped
 # LLM rerank is a bounded, injectable step (Reranker protocol); the default is a no-op.
 
+# Optional third stream: dense vector similarity. Requires the extra:
+#   pip install 'proofwright[vector]'
+# [retrieval.vector]
+# enabled = false                     # off by default; opt in here
+# backend = "model2vec"               # static embeddings (numpy-only, deterministic)
+# model = "minishlab/potion-retrieval-32M"  # HuggingFace id or local directory
+# candidate_limit = 50                # per-stream cap before fusion
+
 [checks]
 fail_on = ["error"]      # severities that cause a nonzero exit code
 disabled = []            # check ids to skip

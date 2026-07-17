@@ -81,6 +81,19 @@ class GraphConfig:
 
 
 @dataclass
+class VectorConfig:
+    # Dense embedding stream, off by default. Requires the ``vector`` extra
+    # (``pip install proofwright[vector]``); configured under ``[retrieval.vector]``.
+    enabled: bool = False
+    # Embedding backend. Room to grow: "onnx", "sentence-transformers".
+    backend: str = "model2vec"
+    # Model id (HuggingFace) or local directory for the chosen backend.
+    model: str = "minishlab/potion-retrieval-32M"
+    # Per-stream candidate cap before fusion.
+    candidate_limit: int = 50
+
+
+@dataclass
 class RetrievalConfig:
     # BM25-Okapi term-frequency saturation and length-normalization.
     bm25_k1: float = 1.5
@@ -98,6 +111,8 @@ class RetrievalConfig:
     top_n: int = 10
     # Minimum token length kept during tokenization.
     min_token_len: int = 2
+    # Optional dense vector stream, configured under ``[retrieval.vector]``.
+    vector: VectorConfig = field(default_factory=VectorConfig)
 
 
 @dataclass
@@ -184,6 +199,9 @@ def load_config(path: str | Path) -> WikiConfig:
         raise FileNotFoundError(f"config not found: {path}")
     with path.open("rb") as fh:
         data = tomllib.load(fh)
+    retrieval = _build(RetrievalConfig, data.get("retrieval"))
+    # [retrieval.vector] is a nested table; build it into a typed VectorConfig.
+    retrieval.vector = _build(VectorConfig, (data.get("retrieval") or {}).get("vector"))
     return WikiConfig(
         root=path.parent,
         paths=_build(PathsConfig, data.get("paths")),
@@ -193,7 +211,7 @@ def load_config(path: str | Path) -> WikiConfig:
         citation=_build(CitationConfig, data.get("citation")),
         freshness=_build(FreshnessConfig, data.get("freshness")),
         graph=_build(GraphConfig, data.get("graph")),
-        retrieval=_build(RetrievalConfig, data.get("retrieval")),
+        retrieval=retrieval,
         checks=_build(ChecksConfig, data.get("checks")),
         plugins=_build(PluginsConfig, data.get("plugins")),
         extra=data,
