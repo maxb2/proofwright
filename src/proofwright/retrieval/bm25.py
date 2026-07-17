@@ -11,13 +11,8 @@ import math
 from collections import Counter
 
 from ..model import Page
+from .pagetext import page_text
 from .tokenize import tokenize
-
-
-def _page_text(page: Page) -> str:
-    title = page.frontmatter.get("title")
-    title = title if isinstance(title, str) else ""
-    return f"{title}\n{page.body}"
 
 
 class BM25Index:
@@ -41,7 +36,7 @@ class BM25Index:
         self._len: list[int] = []
         df: Counter[str] = Counter()
         for page in pages:
-            tokens = tokenize(_page_text(page), min_token_len)
+            tokens = tokenize(page_text(page), min_token_len)
             tf = Counter(tokens)
             self._tf.append(tf)
             self._len.append(len(tokens))
