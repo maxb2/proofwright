@@ -1,6 +1,6 @@
 [project]
 name = "proofwright"
-version = "0.1.0"
+version = "0.2.0"
 description = "Deterministic, zero-LLM structural checks for an LLM Wiki (Karpathy raw/→wiki/ pattern)."
 readme = "README.md"
 requires-python = ">=3.11"
