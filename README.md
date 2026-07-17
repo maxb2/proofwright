@@ -7,6 +7,8 @@ Proofwright is the *deterministic layer*: it **checks the wiki against invariant
 rebuilds derived artifacts, but never authors content. A "wright" is a maker/keeper — it
 builds the index, link graph, and report, not just flags problems.
 
+📖 **Documentation:** <https://maxb2.github.io/proofwright/>
+
 ## What it checks
 
 - **Structural** — orphan pages, missing pages, broken `[[wikilinks]]`, stale index,
