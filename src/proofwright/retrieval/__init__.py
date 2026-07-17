@@ -7,11 +7,13 @@ entry point is :func:`search`.
 from __future__ import annotations
 
 from .bm25 import BM25Index
+from .embed import Embedder, Model2VecEmbedder, load_embedder
 from .engine import RetrievalResult, search
 from .fusion import rrf_fuse
 from .graph_expand import graph_candidates
 from .rerank import IdentityReranker, Reranker
 from .tokenize import tokenize
+from .vector import VectorIndex
 
 __all__ = [
     "search",
@@ -22,4 +24,8 @@ __all__ = [
     "tokenize",
     "Reranker",
     "IdentityReranker",
+    "Embedder",
+    "Model2VecEmbedder",
+    "load_embedder",
+    "VectorIndex",
 ]

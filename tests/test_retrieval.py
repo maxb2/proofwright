@@ -1,12 +1,17 @@
 import json
 
+import numpy as np
+
+from proofwright.config import VectorConfig
 from proofwright.cli import main
 from proofwright.parse import load_wiki
 from proofwright.retrieval import (
     BM25Index,
     IdentityReranker,
     RetrievalResult,
+    VectorIndex,
     graph_candidates,
+    load_embedder,
     rrf_fuse,
     search,
     tokenize,
@@ -125,6 +130,70 @@ def test_identity_reranker_is_noop():
     baseline = search(wiki, cfg, "book")
     reranked = search(wiki, cfg, "book", reranker=IdentityReranker())
     assert [r.slug for r in baseline] == [r.slug for r in reranked]
+
+
+# --- vector -----------------------------------------------------------------------------
+
+
+class FakeEmbedder:
+    """Deterministic, network-free embedder: hashed bag-of-tokens, L2-normalized.
+
+    Semantically-close texts share tokens and therefore point in similar directions, which is
+    enough to exercise the vector plumbing without downloading a real model.
+    """
+
+    def __init__(self, dim: int = 64) -> None:
+        self.dim = dim
+
+    def encode(self, texts: list[str]) -> np.ndarray:
+        matrix = np.zeros((len(texts), self.dim), dtype="float32")
+        for row, text in enumerate(texts):
+            for token in tokenize(text):
+                matrix[row, hash(token) % self.dim] += 1.0
+        norms = np.linalg.norm(matrix, axis=1, keepdims=True)
+        norms[norms == 0] = 1.0
+        return matrix / norms
+
+
+def test_vector_index_ranks_and_is_deterministic():
+    wiki = load_wiki(_md_config())
+    index = VectorIndex(wiki.pages, FakeEmbedder())
+    a = index.search("author books")
+    b = index.search("author books")
+    assert a == b  # deterministic
+    assert a, "expected at least one hit"
+    assert all(score > 0 for _, score in a)
+    # best-first, slug-tie-broken ordering
+    assert a == sorted(a, key=lambda x: (-x[1], x[0]))
+
+
+def test_search_includes_vector_stream_when_enabled():
+    cfg = _md_config()
+    cfg.retrieval.vector.enabled = True
+    wiki = load_wiki(cfg)
+    results = search(wiki, cfg, "author books", embedder=FakeEmbedder())
+    assert results
+    assert any("vector" in r.streams for r in results)
+
+
+def test_search_respects_top_n_with_vector():
+    cfg = _md_config()
+    cfg.retrieval.vector.enabled = True
+    cfg.retrieval.top_n = 1
+    wiki = load_wiki(cfg)
+    assert len(search(wiki, cfg, "book author", embedder=FakeEmbedder())) == 1
+
+
+def test_search_omits_vector_stream_by_default():
+    cfg = _md_config()  # vector disabled by default
+    wiki = load_wiki(cfg)
+    results = search(wiki, cfg, "author books")
+    assert results
+    assert all("vector" not in r.streams for r in results)
+
+
+def test_load_embedder_none_when_disabled():
+    assert load_embedder(VectorConfig(enabled=False)) is None
 
 
 # --- CLI --------------------------------------------------------------------------------

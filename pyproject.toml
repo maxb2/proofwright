@@ -1,6 +1,6 @@
 [project]
 name = "proofwright"
-version = "0.1.0"
+version = "0.2.0"
 description = "Deterministic, zero-LLM structural checks for an LLM Wiki (Karpathy raw/→wiki/ pattern)."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -13,6 +13,11 @@ dependencies = [
     "PyYAML>=6.0",
     "Jinja2>=3.0",
 ]
+
+[project.optional-dependencies]
+# Dense vector retrieval stream. Static embeddings (numpy-only, no torch) keep the
+# install light and results bit-deterministic. Enable via [retrieval.vector] in wiki.toml.
+vector = ["numpy>=1.26", "model2vec>=0.3"]
 
 [project.scripts]
 proofwright = "proofwright.cli:main"
