@@ -29,10 +29,20 @@ uv run proofwright check --config wiki.toml            # run all checks → repo
 uv run proofwright check --format json                 # machine-readable findings
 uv run proofwright index --check                        # is the committed index stale?
 uv run proofwright index --write                        # regenerate the index
-uv run proofwright graph --report                       # graph-health report
+uv run proofwright graph                                # graph-health report
 uv run proofwright search "your query"                  # rank pages (BM25 + graph, RRF)
 uv run proofwright search "your query" --format json    # ranked results with provenance
 ```
+
+Invoke as `proofwright` or the short alias `pw`. Every subcommand defaults to
+`--config wiki.toml`.
+
+| Subcommand | Purpose | Key flags |
+| --- | --- | --- |
+| `check` (alias `lint`) | Run every registered invariant check → report. The zero-LLM pre-flight. | `--format {text,json}`; exits nonzero on `[checks].fail_on` severities |
+| `index` | Rebuild or verify the generated table of contents. | `--write` rewrites it; `--check` (default) fails if stale |
+| `graph` | Link-graph health: phantom hubs, hub stubs, fragile bridges. | `--format {text,json}` |
+| `search "<query>"` | Rank pages (BM25 + graph, RRF). | `--format {text,json}` for stream provenance; `--top-n N` overrides `[retrieval].top_n` |
 
 ## Retrieval
 
